@@ -4,8 +4,14 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'selector',
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['"Manrope"', 'sans-serif'],
+        display: ['"Bricolage Grotesque"', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 }

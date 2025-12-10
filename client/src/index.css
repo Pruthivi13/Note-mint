@@ -1,3 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@layer utilities {
+  .custom-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .custom-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+@variant dark (&:where(.dark, .dark *));
+
+body {
+  font-family: 'Manrope', sans-serif;
+  @apply bg-slate-50 text-slate-900 antialiased;
+}

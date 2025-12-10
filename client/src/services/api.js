@@ -1,0 +1,41 @@
+import axios from "axios";
+
+const API = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5005/api",
+});
+
+// ---------------------------
+// Notes CRUD Operations
+// ---------------------------
+
+// Get all notes
+export const getNotes = async () => {
+  return API.get("/notes");
+};
+
+// Create a new note
+export const createNote = async (data) => {
+  return API.post("/notes", data);
+};
+
+// Update an existing note
+export const updateNote = async (id, data) => {
+  return API.put(`/notes/${id}`, data);
+};
+
+// Delete note
+export const deleteNote = async (id) => {
+  return API.delete(`/notes/${id}`);
+};
+
+// Summarize note using AI (ID-based)
+export const summarizeNote = async (id) => {
+  return API.post(`/notes/${id}/summarize`);
+};
+
+// Summarize raw text
+export const summarizeText = async (content) => {
+  return API.post(`/notes/summarize-text`, { content });
+};
+
+export default API;
