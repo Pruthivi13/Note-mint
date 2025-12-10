@@ -2,7 +2,7 @@
 
 NoteMint is a modern, offline-first note-taking application powered by AI. It allows you to create, organize, and summarize your thoughts instantly, all wrapped in a beautiful, responsive user interface.
 
-![NoteMint Screenshot](https://via.placeholder.com/800x400?text=NoteMint+UI+Preview)
+![NoteMint Screenshot](assets/screenshot.png)
 
 ## ✨ Key Features
 
