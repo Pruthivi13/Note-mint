@@ -1,7 +1,15 @@
 import axios from "axios";
 
+// Helper to determine URL
+const getBaseUrl = () => {
+    if (import.meta.env.PROD) {
+        return "/.netlify/functions";
+    }
+    return import.meta.env.VITE_API_URL || "http://localhost:5005/api";
+};
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5005/api",
+  baseURL: getBaseUrl(),
 });
 
 // ---------------------------
@@ -34,8 +42,13 @@ export const summarizeNote = async (id) => {
 };
 
 // Summarize raw text
-export const summarizeText = async (content) => {
-  return API.post(`/notes/summarize-text`, { content });
+export const summarizeText = (content) => {
+  // If in Prod (Netlify), target the function directly
+  if (import.meta.env.PROD) {
+      return axios.post("/.netlify/functions/summarize", { content });
+  }
+  // Otherwise use local express
+  return API.post("/notes/summarize-text", { content });
 };
 
 export default API;

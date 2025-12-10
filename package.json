@@ -1,0 +1,26 @@
+{
+  "name": "notemint",
+  "version": "1.0.0",
+  "description": "NoteMint is a modern, offline-first note-taking application powered by AI. It allows you to create, organize, and summarize your thoughts instantly, all wrapped in a beautiful, responsive user interface.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cd client && npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pruthivi13/Note-mint.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Pruthivi13/Note-mint/issues"
+  },
+  "homepage": "https://github.com/Pruthivi13/Note-mint#readme",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.2.3"
+  }
+}
