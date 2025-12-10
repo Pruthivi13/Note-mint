@@ -9,7 +9,7 @@ const connectDB = require('./config/db');
 connectDB();
 console.log("Debug: GEMINI_API_KEY loaded?", !!process.env.GEMINI_API_KEY);
 
-const PORT = 5005;
+const PORT = process.env.PORT || 5005;
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

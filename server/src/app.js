@@ -9,4 +9,8 @@ app.use(express.json());
 
 app.use('/api/notes', noteRoutes);
 
+app.get('/', (req, res) => {
+    res.send("API is running...");
+});
+
 module.exports = app;

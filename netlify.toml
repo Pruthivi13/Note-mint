@@ -8,6 +8,11 @@
 
 # Rewrite API requests to the function
 [[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+[[redirects]]
   from = "/api/summarize"
   to = "/.netlify/functions/summarize"
   status = 200
