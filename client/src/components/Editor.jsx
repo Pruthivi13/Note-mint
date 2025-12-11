@@ -93,8 +93,10 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, onBack, dark
       setSummary(newSummary);
       if (onSummaryUpdated) onSummaryUpdated(newSummary);
     } catch (err) {
-      console.error("Summarize Error:", err);
-      alert("Failed to generate summary: " + (err.response?.data?.message || err.message));
+      console.error("Summarize Error Full Object:", JSON.parse(JSON.stringify(err))); // Hack to show enumerable properties
+      console.error("Summarize Error Message:", err.message);
+      console.error("Summarize Error Response:", err.response);
+      alert("Failed to generate summary. Check console for details. " + (err.response?.data?.message || err.message));
     }
     setLoading(false);
   };
