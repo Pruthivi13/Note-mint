@@ -15,13 +15,23 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
   const [saving, setSaving] = useState(false);
   const [lastModified, setLastModified] = useState('');
 
+  const prevNoteIdRef = React.useRef(null);
+  
   useEffect(() => {
     if (selectedNote) {
-      setTitle(selectedNote.title);
-      setContent(selectedNote.content);
-      setSummary(selectedNote.summary || '');
-      setTags(selectedNote.tags || []);
-      setIsBookmarked(selectedNote.isBookmarked || false);
+      if (selectedNote.id !== prevNoteIdRef.current) {
+         // New Note selected: Load everything
+         setTitle(selectedNote.title);
+         setContent(selectedNote.content);
+         setSummary(selectedNote.summary || '');
+         setTags(selectedNote.tags || []);
+         setIsBookmarked(selectedNote.isBookmarked || false);
+         prevNoteIdRef.current = selectedNote.id;
+      } else {
+         // Same Note: Only update metadata or bookmarks if needed
+         // Do NOT overwrite Title/Content/Tags as Editor is source of truth while active
+         setIsBookmarked(selectedNote.isBookmarked || false);
+      }
       setLastModified(new Date(selectedNote.updatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }));
     } else {
       setTitle('');
@@ -30,6 +40,7 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
       setTags([]);
       setIsBookmarked(false);
       setLastModified('');
+      prevNoteIdRef.current = null;
     }
   }, [selectedNote]);
 
