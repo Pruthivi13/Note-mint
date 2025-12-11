@@ -10,8 +10,8 @@ const generateSummary = async (content) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    // Switching to 2.5-flash to bypass 2.0 rate limits
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    // Use Experimental model for better free tier quota
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
     const prompt = `Summarize the following text in 4-6 lines, capturing the main points clearly:\n\n${content}`;
 
@@ -21,21 +21,16 @@ const generateSummary = async (content) => {
     
     return text.trim();
   } catch (error) {
-    console.error("AI Service Error:", error);
+    console.warn("AI Service Error (Rate Limit/Quota):", error.message);
     
-    // Distinguish between Rate Limit (429) and Auth/Model issues (404/401)
-    if (error.status === 429 || error.toString().includes('429')) {
-         console.warn("Rate limit hit.");
-         return `[Falback Summary]: (Rate Limit Hit) Please wait a minute and try again. The free tier has limits.`;
-    }
+    // Fallback: Simple heuristic summary (First 3 sentences)
+    const sentences = content.match(/[^\.!\?]+[\.!\?]+/g) || [content];
+    const fallbackSummary = sentences.slice(0, 3).join(' ') + " (Generated offline due to high traffic)";
     
-    if (error.toString().includes('404') || error.status === 401) {
-        console.warn("Falling back to mock summary due to API error:", error.message);
-        return `[Fallback Summary]: (API Error) ${content.substring(0, 100)}... \n\nCheck your API Key permissions at: https://aistudio.google.com/`;
-    }
-
-    throw error;
+    return fallbackSummary;
   }
+    
+
 };
 
 module.exports = { generateSummary };

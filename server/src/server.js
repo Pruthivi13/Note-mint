@@ -6,7 +6,9 @@ const app = require('./app');
 const connectDB = require('./config/db');
 
 // Connect to Database
-connectDB();
+// Connect to Database (Optional for Local Storage mode)
+// connectDB(); 
+console.log("Debug: Skipping MongoDB connection (Running in AI-Gateway mode)");
 console.log("Debug: GEMINI_API_KEY loaded?", !!process.env.GEMINI_API_KEY);
 
 const PORT = process.env.PORT || 5005;
