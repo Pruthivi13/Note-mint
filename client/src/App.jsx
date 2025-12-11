@@ -10,6 +10,12 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null);
+  
+  const getErrorMessage = (err) => {
+      if (err.response?.data?.message) return err.response.data.message;
+      if (err.response?.data?.error) return err.response.data.error;
+      return err.message || "Unknown Error";
+  };
 
   // Initial Load
   useEffect(() => {
@@ -24,7 +30,7 @@ function App() {
       })
       .catch((err) => {
           console.error("Failed to load notes", err);
-          setError(`Failed to load notes: ${err.message}`);
+          setError(`Failed to load notes: ${getErrorMessage(err)}`);
       })
       .finally(() => setIsLoaded(true));
     
@@ -112,7 +118,7 @@ function App() {
          setSelectedNote(finalNote);
         } catch (err) {
           console.error("Failed to create note", err);
-          setError(`Failed to create note: ${err.message}`);
+          setError(`Failed to create note: ${getErrorMessage(err)}`);
         }
 
     } else {
@@ -127,7 +133,7 @@ function App() {
         setSelectedNote(updatedLocal);
       } catch (err) {
         console.error("Failed to update note", err);
-        setError(`Failed to update note: ${err.message}`);
+        setError(`Failed to update note: ${getErrorMessage(err)}`);
       }
     }
   };
