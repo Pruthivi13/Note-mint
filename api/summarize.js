@@ -32,7 +32,8 @@ module.exports = async (req, res) => {
 
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Using -001 or -8b versions is often safer than generic aliases
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
 
         const prompt = `Summarize the following text in 4-6 lines, capturing the main points clearly:\n\n${content}`;
         
