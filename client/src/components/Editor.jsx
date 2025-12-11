@@ -33,11 +33,21 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
     }
   }, [selectedNote]);
 
-  const handleSave = () => {
-    // Silent save, no alert
+  const [isSaved, setIsSaved] = useState(false);
+
+  const handleSave = async () => {
+    // Save locally and trigger parent save
     setSaving(true);
-    if (onSave) onSave({ title, content, summary, tags, isBookmarked });
+    setIsSaved(false);
+    
+    if (onSave) {
+        // Await onSave if it returns a promise (it does in App.jsx)
+        await onSave({ title, content, summary, tags, isBookmarked });
+    }
+    
     setSaving(false);
+    setIsSaved(true);
+    // Timeout removed to keep "Saved" state persistent until next edit
   };
 
   const toggleBookmark = () => {
@@ -46,9 +56,19 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
     if (selectedNote && onSave) onSave({ title, content, summary, tags, isBookmarked: newState });
   };
   
-  const handleTagsChange = (newTags) => {
+  const handleTagsChange = async (newTags) => {
+      console.log("Editor: Tags Changed:", newTags);
       setTags(newTags);
-      if (selectedNote && onSave) onSave({ title, content, summary, tags: newTags, isBookmarked });
+      setSaving(true);
+      setIsSaved(false);
+      
+      if (selectedNote && onSave) {
+          console.log("Editor: Calling onSave with tags:", newTags);
+          await onSave({ title, content, summary, tags: newTags, isBookmarked });
+      }
+      
+      setSaving(false);
+      setIsSaved(true);
   };
 
   const handleSummarize = async () => {
@@ -77,6 +97,7 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
                 <span className="bg-slate-100 dark:bg-slate-900 px-3 py-1 rounded-full">
                     Modified {lastModified}
                     {saving && <span className="text-emerald-500 ml-2 animate-pulse">Saving...</span>}
+                    {isSaved && !saving && <span className="text-emerald-600 ml-2">Saved</span>}
                 </span>
              ) : (
                 <span className="opacity-0">Placeholder</span> 
@@ -126,7 +147,7 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
               <input
                 type="text"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => { setTitle(e.target.value); setIsSaved(false); }}
                 onBlur={handleSave}
                 onKeyDown={(e) => e.key === 'Enter' && handleSave()}
                 placeholder="Untitled Note"
@@ -161,7 +182,7 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
               {/* Text Area */}
               <textarea
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => { setContent(e.target.value); setIsSaved(false); }}
                 onBlur={handleSave} 
                 placeholder="Type / for commands..."
                 className="w-full min-h-[60vh] bg-transparent resize-none focus:outline-none text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans"
@@ -171,15 +192,24 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
                 <div className="fixed bottom-8 right-8 flex gap-2">
                     <button 
                     onClick={handleSave}
-                    className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3 rounded-full font-bold shadow-2xl hover:scale-105 transition-transform"
+                    className={`px-6 py-3 rounded-full font-bold shadow-2xl hover:scale-105 transition-all duration-300 ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'}`}
                     >
-                        Save
+                        {isSaved ? 'Saved ✔️' : 'Save'}
                     </button>
+                </div>
+
+                {/* DEBUG PANEL */}
+                <div className="mt-8 bg-gray-100 p-4 border-t border-gray-300 dark:bg-slate-900 dark:border-slate-800 text-xs font-mono overflow-auto max-h-40">
+                  <p className="font-bold text-red-500 mb-2">DEBUG INFO (Take Screenshot if Tags Missing)</p>
+                  <p>Note ID: {selectedNote.id}</p>
+                  <p>Tags Array: {JSON.stringify(selectedNote.tags)}</p>
+                  <p>Raw Note: {JSON.stringify(selectedNote)}</p>
                 </div>
           </div>
       )}
     </div>
   );
+
 };
 
 export default Editor;

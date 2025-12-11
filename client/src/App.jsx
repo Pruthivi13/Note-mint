@@ -1,23 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import NotesList from './components/NotesList';
 import Editor from './components/Editor';
-import { loadNotes, saveNotes } from './services/storage';
+import * as api from './services/api';
 
 function App() {
   const [notes, setNotes] = useState([]);
   const [selectedNote, setSelectedNote] = useState(null);
+  const [selectedTag, setSelectedTag] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Initial Load
   useEffect(() => {
     console.log("App mounted. Loading notes...");
-    const storedNotes = loadNotes();
-    console.log("Loaded notes:", storedNotes);
-    if (storedNotes) {
-        setNotes(storedNotes);
-    }
-    setIsLoaded(true);
+    api.getNotes()
+      .then((res) => {
+        // Normalize _id to id for frontend consistency
+        const normalized = res.data.map(n => ({ ...n, id: n._id }));
+        console.log("LOADED RAW DATA FROM API:", res.data);
+        console.log("Loaded notes:", normalized);
+        setNotes(normalized);
+      })
+      .catch((err) => console.error("Failed to load notes", err))
+      .finally(() => setIsLoaded(true));
     
     // Check local storage or preference for Dark Mode
     const isDark = localStorage.getItem('darkMode') === 'true';
@@ -27,12 +32,7 @@ function App() {
     }
   }, []);
 
-  // Auto-save notes whenever they change (only after initial load)
-  useEffect(() => {
-    if (isLoaded) {
-        saveNotes(notes);
-    }
-  }, [notes, isLoaded]);
+
 
   const toggleDarkMode = () => {
     const newMode = !darkMode;
@@ -50,8 +50,9 @@ function App() {
   };
 
   const handleNewNote = () => {
+    // Draft note logic (temp ID)
     const newNote = {
-      id: Date.now().toString(),
+      id: `temp-${Date.now()}`,
       title: "",
       content: "",
       summary: "",
@@ -65,55 +66,128 @@ function App() {
   };
 
   // Local CRUD Handlers passed to Editor
-  const handleSaveNote = (noteData) => {
-    if (selectedNote) {
-      // Update
-      const updatedNotes = notes.map((n) => 
-        n.id === selectedNote.id ? { ...selectedNote, ...noteData, updatedAt: new Date().toISOString() } : n
-      );
-      setNotes(updatedNotes);
-      // Update selected note to reflect changes immediately
-      setSelectedNote({ ...selectedNote, ...noteData, updatedAt: new Date().toISOString() });
+  const handleSaveNote = async (noteData) => {
+    console.log("App: handleSaveNote called with:", noteData);
+    if (!selectedNote) return;
+
+    // Optimistic update locally
+    const updatedLocal = { ...selectedNote, ...noteData, updatedAt: new Date().toISOString() };
+    
+    // If it's a temp ID, create it on backend
+    if (selectedNote.id.toString().startsWith('temp-')) {
+       // Only create if there's actual content/title/tags to avoid spamming empty notes
+       if (!noteData.title && !noteData.content && (!noteData.tags || noteData.tags.length === 0)) {
+            // Just update state locally for draft
+            const updatedNotes = notes.map((n) => 
+                n.id === selectedNote.id ? updatedLocal : n
+            );
+            setNotes(updatedNotes);
+            setSelectedNote(updatedLocal);
+            return;
+       }
+
+       try {
+         // Create in DB
+         // Note: we strip ID so DB generates one, or we use temp ID? MongoDB generates _id.
+         // Client expects 'id'. DB returns '_id' usually.
+         // Controller returns 'savedNote'.
+         // Ensure we handle mapping if needed. 
+         // But the noteController seems to accept req.body.
+         const { id, ...dataToSave } = noteData; // omit temp id
+         const res = await api.createNote(dataToSave);
+         const savedNote = res.data; // Should have _id or id
+         
+         // Replace temp note with real note
+         const newId = savedNote._id || savedNote.id;
+         const finalNote = { ...savedNote, id: newId };
+         
+         const updatedNotes = notes.map((n) => 
+            n.id === selectedNote.id ? finalNote : n
+         );
+         setNotes(updatedNotes);
+         setSelectedNote(finalNote);
+       } catch (err) {
+         console.error("Failed to create note", err);
+       }
+
     } else {
-      // Create
-      const newNote = {
-        id: Date.now().toString(), // Simple ID
-        ...noteData,
-        summary: "",
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      setNotes([newNote, ...notes]);
-      setSelectedNote(newNote);
+      // Update existing
+      try {
+        const res = await api.updateNote(selectedNote.id, noteData);
+        console.log("App: Update Response from Server:", res.data);
+        const updatedNotes = notes.map((n) => 
+            n.id === selectedNote.id ? updatedLocal : n
+        );
+        setNotes(updatedNotes);
+        setSelectedNote(updatedLocal);
+      } catch (err) {
+        console.error("Failed to update note", err);
+      }
     }
   };
 
-  const handleDeleteNote = () => {
+  const handleDeleteNote = async () => {
     if (!selectedNote) return;
-    const filtered = notes.filter((n) => n.id !== selectedNote.id);
-    setNotes(filtered);
-    setSelectedNote(null);
+    
+    // If temp, just remove
+    if (selectedNote.id.toString().startsWith('temp-')) {
+        const filtered = notes.filter((n) => n.id !== selectedNote.id);
+        setNotes(filtered);
+        setSelectedNote(null);
+        return;
+    }
+
+    // Call API
+    try {
+        await api.deleteNote(selectedNote.id);
+        const filtered = notes.filter((n) => n.id !== selectedNote.id);
+        setNotes(filtered);
+        setSelectedNote(null);
+    } catch(err) {
+        console.error("Failed to delete note", err);
+    }
   };
 
   // Handle AI Summary Update (from Editor)
   const handleSummaryUpdated = (summary) => {
      if (!selectedNote) return;
-     const updatedNotes = notes.map((n) => 
-       n.id === selectedNote.id ? { ...n, summary } : n
-     );
-     setNotes(updatedNotes);
-     setSelectedNote({ ...selectedNote, summary });
+     
+     const targetId = selectedNote.id;
+
+     // Update notes list
+     setNotes(prevNotes => prevNotes.map(n => 
+        n.id === targetId ? { ...n, summary } : n
+     ));
+
+     // Update selected note (functional update to preserve latest content)
+     setSelectedNote(prevSelected => {
+        if (prevSelected && prevSelected.id === targetId) {
+            return { ...prevSelected, summary };
+        }
+        return prevSelected;
+     });
   };
+
+  // Derive all unique tags from notes
+  const allTags = Array.from(new Set(notes.flatMap(note => note.tags || []))).sort();
+
+  // Filter notes based on selected tag
+  const filteredNotes = selectedTag 
+    ? notes.filter(note => note.tags && note.tags.includes(selectedTag))
+    : notes;
 
   return (
     <div className={`flex h-screen font-sans overflow-hidden ${darkMode ? 'dark' : ''} bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
       <NotesList 
-        notes={notes} 
+        notes={filteredNotes} 
         selectedNote={selectedNote} 
         onSelectNote={handleSelectNote} 
         onNewNote={handleNewNote}
         darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
+        tags={allTags}
+        selectedTag={selectedTag}
+        onSelectTag={setSelectedTag}
       />
       
       <main className="flex-1 h-full flex flex-col relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">

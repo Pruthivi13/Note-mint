@@ -1,7 +1,7 @@
 import { StarIcon } from '@heroicons/react/24/solid';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
-const NotesList = ({ notes, selectedNote, onSelectNote, onNewNote, darkMode, toggleDarkMode }) => {
+const NotesList = ({ notes, selectedNote, onSelectNote, onNewNote, darkMode, toggleDarkMode, tags, selectedTag, onSelectTag }) => {
   return (
     <div className="w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-full z-10 font-sans transition-colors duration-300">
       {/* Header */}
@@ -22,6 +22,35 @@ const NotesList = ({ notes, selectedNote, onSelectNote, onNewNote, darkMode, tog
           <span>New Note</span>
         </button>
       </div>
+
+      {/* Tags Filter (Horizontal Scroll) */}
+      {tags && tags.length > 0 && (
+         <div className="px-5 pb-4 overflow-x-auto whitespace-nowrap custom-scrollbar flex gap-2">
+             {selectedTag && (
+                <button
+                    onClick={() => onSelectTag(null)}
+                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-500 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors flex-shrink-0"
+                    title="Clear Filter"
+                >
+                    Clear
+                </button>
+             )}
+             
+            {tags.map(tag => (
+                <button
+                    key={tag}
+                    onClick={() => onSelectTag(selectedTag === tag ? null : tag)}
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border transition-colors flex-shrink-0 ${
+                         selectedTag === tag
+                         ? 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:border-emerald-800'
+                         : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700'
+                    }`}
+                >
+                    #{tag}
+                </button>
+            ))}
+         </div>
+      )}
 
       {/* List */}
       <div className="flex-1 overflow-y-auto custom-scrollbar px-3 pb-4 space-y-2">

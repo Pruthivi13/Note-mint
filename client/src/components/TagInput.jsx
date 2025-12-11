@@ -34,7 +34,7 @@ const TagInput = ({ tags = [], onChange }) => {
           <button 
             type="button"
             onClick={() => removeTag(tag)}
-            className="ml-1.5 inline-flex flex-shrink-0 h-4 w-4 focus:outline-none focus:text-emerald-900 dark:focus:text-emerald-200 hover:text-emerald-900 dark:hover:text-emerald-200"
+            className="ml-1.5 inline-flex items-center justify-center flex-shrink-0 h-4 w-4 focus:outline-none focus:text-emerald-900 dark:focus:text-emerald-200 hover:text-emerald-900 dark:hover:text-emerald-200 rounded-full hover:bg-emerald-200/50 dark:hover:bg-emerald-800/50 transition-colors"
           >
             <XMarkIcon className="w-3 h-3" />
           </button>

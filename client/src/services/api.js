@@ -5,7 +5,7 @@ const getBaseUrl = () => {
     if (import.meta.env.PROD) {
         return "/api"; 
     }
-    return import.meta.env.VITE_API_URL || "http://localhost:5005/api";
+    return import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 };
 
 const API = axios.create({
@@ -16,9 +16,9 @@ const API = axios.create({
 // Notes CRUD Operations
 // ---------------------------
 
-// Get all notes
+// Get all notes (cache-busted)
 export const getNotes = async () => {
-  return API.get("/notes");
+  return API.get(`/notes?_t=${Date.now()}`);
 };
 
 // Create a new note

@@ -1,9 +1,12 @@
 const mongoose = require('mongoose');
 
+console.log("!!! LOADING SOURCE MODELS/NOTE.JS WITH TAGS !!!"); 
+
 const NoteSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
+    required: false,
+    default: "",
   },
   content: {
     type: String,
@@ -14,6 +17,10 @@ const NoteSchema = new mongoose.Schema({
     type: String,
     required: false,
     default: "",
+  },
+  tags: {
+    type: [String],
+    default: [],
   },
 }, { timestamps: true });
 
