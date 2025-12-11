@@ -209,13 +209,7 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
                     </button>
                 </div>
 
-                {/* DEBUG PANEL */}
-                <div className="mt-8 bg-gray-100 p-4 border-t border-gray-300 dark:bg-slate-900 dark:border-slate-800 text-xs font-mono overflow-auto max-h-40">
-                  <p className="font-bold text-red-500 mb-2">DEBUG INFO (Take Screenshot if Tags Missing)</p>
-                  <p>Note ID: {selectedNote.id}</p>
-                  <p>Tags Array: {JSON.stringify(selectedNote.tags)}</p>
-                  <p>Raw Note: {JSON.stringify(selectedNote)}</p>
-                </div>
+
           </div>
       )}
     </div>
