@@ -32,19 +32,28 @@ module.exports = async (req, res) => {
 
     try {
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Using -001 or -8b versions is often safer than generic aliases
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-8b" });
-
+        
+        // Strategy: Try efficient model first, fall back to legacy pro model
+        let modelString = "gemini-1.5-flash-001"; 
+        let model = genAI.getGenerativeModel({ model: modelString });
         const prompt = `Summarize the following text in 4-6 lines, capturing the main points clearly:\n\n${content}`;
         
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            return res.status(200).json({ summary: response.text().trim() });
+        } catch (firstError) {
+             console.warn(`Failed with ${modelString}, trying gemini-pro...`);
+             // Fallback to older reliable model
+             model = genAI.getGenerativeModel({ model: "gemini-pro" });
+             const result = await model.generateContent(prompt);
+             const response = await result.response;
+             return res.status(200).json({ summary: response.text().trim() });
+        }
 
-        return res.status(200).json({ summary: text.trim() });
     } catch (apiError) {
-        console.error("Gemini API Error:", apiError);
-        return res.status(200).json({ summary: "⚠️ API Error: " + apiError.message });
+        console.error("All Gemini Models Failed:", apiError);
+        return res.status(200).json({ summary: "⚠️ AI Error: " + apiError.message });
     }
 
   } catch (error) {
