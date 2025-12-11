@@ -1,15 +1,5 @@
 import axios from "axios";
 
-// Helper to determine URL
-const getBaseUrl = () => {
-    if (import.meta.env.PROD) {
-        return "/api"; 
-    }
-    return import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-};
-
-import axios from "axios";
-
 // Helper to get notes from Local Storage
 const getLocalNotes = () => {
   const notes = localStorage.getItem('notes');
