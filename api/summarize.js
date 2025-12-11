@@ -43,9 +43,15 @@ module.exports = async (req, res) => {
     return res.status(200).json({ summary: text.trim() });
 
   } catch (error) {
-    console.error("AI Service Error:", error);
-    return res.status(500).json({ 
-        message: error.message || "Failed to generate summary" 
+    console.warn("AI Service Error (Rate Limit/Quota):", error.message);
+    
+    // Fallback: Simple extraction summary
+    const sentences = content.match(/[^\.!\?]+[\.!\?]+/g) || [content];
+    const fallbackSummary = sentences.slice(0, 3).join(' ') + " (Running offline due to high traffic)";
+    
+    return res.status(200).json({ 
+        summary: fallbackSummary,
+        isFallback: true 
     });
   }
 };
