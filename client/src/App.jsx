@@ -188,21 +188,35 @@ function App() {
     ? notes.filter(note => note.tags && note.tags.includes(selectedTag))
     : notes;
 
+  const handleBack = () => {
+    setSelectedNote(null);
+  };
+
   return (
     <div className={`flex h-screen font-sans overflow-hidden ${darkMode ? 'dark' : ''} bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
-      <NotesList 
-        notes={filteredNotes} 
-        selectedNote={selectedNote} 
-        onSelectNote={handleSelectNote} 
-        onNewNote={handleNewNote}
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        tags={allTags}
-        selectedTag={selectedTag}
-        onSelectTag={setSelectedTag}
-      />
+      {/* 
+          Mobile: Show List if NO note selected.
+          Desktop: Always show List.
+      */}
+      <div className={`${selectedNote ? 'hidden md:flex' : 'flex'} w-full md:w-auto h-full`}>
+          <NotesList 
+            notes={filteredNotes} 
+            selectedNote={selectedNote} 
+            onSelectNote={handleSelectNote} 
+            onNewNote={handleNewNote}
+            darkMode={darkMode}
+            toggleDarkMode={toggleDarkMode}
+            tags={allTags}
+            selectedTag={selectedTag}
+            onSelectTag={setSelectedTag}
+          />
+      </div>
       
-      <main className="flex-1 h-full flex flex-col relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      {/* 
+          Mobile: Show Editor if note selected.
+          Desktop: Always show Editor (flex-1).
+      */}
+      <main className={`${selectedNote ? 'flex' : 'hidden md:flex'} flex-1 h-full flex-col relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300`}>
         {error && (
             <div className="bg-red-500 text-white px-4 py-2 text-sm font-bold flex justify-between items-center">
                 <span>{error}</span>
@@ -214,6 +228,7 @@ function App() {
           onSave={handleSaveNote}
           onDelete={handleDeleteNote}
           onSummaryUpdated={handleSummaryUpdated}
+          onBack={handleBack}
           darkMode={darkMode}
           toggleDarkMode={toggleDarkMode}
         />

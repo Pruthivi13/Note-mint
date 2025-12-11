@@ -3,7 +3,7 @@ import { PlusIcon } from '@heroicons/react/24/outline';
 
 const NotesList = ({ notes, selectedNote, onSelectNote, onNewNote, darkMode, toggleDarkMode, tags, selectedTag, onSelectTag }) => {
   return (
-    <div className="w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-full z-10 font-sans transition-colors duration-300">
+    <div className="w-full md:w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-full z-10 font-sans transition-colors duration-300">
       {/* Header */}
       <div className="p-5">
         <div className="flex items-center justify-between mb-6">

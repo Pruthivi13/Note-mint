@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import SummaryBox from './SummaryBox';
 import TagInput from './TagInput';
 import { summarizeText } from '../services/api';
-import { StarIcon as StarIconSolid, TrashIcon, SunIcon, MoonIcon, SparklesIcon } from '@heroicons/react/24/solid';
+import { StarIcon as StarIconSolid, TrashIcon, SunIcon, MoonIcon, SparklesIcon, ChevronLeftIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarIconOutline } from '@heroicons/react/24/outline';
 
-const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, toggleDarkMode }) => {
+const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, onBack, darkMode, toggleDarkMode }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [summary, setSummary] = useState('');
@@ -154,16 +154,27 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, darkMode, to
           </div>
       ) : (
           <div className="flex-1 overflow-y-auto custom-scrollbar px-12 py-6 max-w-5xl mx-auto w-full">
-              {/* Title input */}
-              <input
+              
+              <div className="flex items-center gap-2 mb-4">
+                 <button 
+                    onClick={onBack}
+                    className="md:hidden p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
+                    title="Back to List"
+                 >
+                    <ChevronLeftIcon className="w-6 h-6" />
+                 </button>
+
+                 {/* Title input */}
+                 <input
                 type="text"
                 value={title}
                 onChange={(e) => { setTitle(e.target.value); setIsSaved(false); }}
                 onBlur={handleSave}
                 onKeyDown={(e) => e.key === 'Enter' && handleSave()}
                 placeholder="Untitled Note"
-                className="w-full text-5xl font-extrabold font-display bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-slate-800 tracking-tight leading-tight mb-6"
+                className="w-full text-5xl font-extrabold font-display bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-slate-800 tracking-tight leading-tight"
               />
+              </div>
 
               {/* Tags */}
               <div className="mb-8 pl-1">
