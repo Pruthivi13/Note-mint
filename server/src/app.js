@@ -13,7 +13,9 @@ app.use((req, res, next) => {
     next();
 });
 
+// Mount routes (support both /api/notes and /notes for serverless compatibility)
 app.use('/api/notes', noteRoutes);
+app.use('/notes', noteRoutes);
 
 app.get('/', (req, res) => {
     res.send("API is running...");
