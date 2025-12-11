@@ -11,7 +11,14 @@ const NotesList = ({ notes, selectedNote, onSelectNote, onNewNote, darkMode, tog
             <img src="/notes.svg" alt="Logo" className="w-6 h-6" />
             NOTE MINT
           </h1>
-          {/* Theme Toggle can function as the "Settings" or explicit toggle */}
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleDarkMode}
+            className="p-2 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+            title="Toggle Dark Mode"
+          >
+            {darkMode ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
+          </button>
         </div>
         
         <button 
