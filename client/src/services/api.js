@@ -72,8 +72,8 @@ export const deleteNote = async (id) => {
 // Summarize raw text (Keeps Server-Side logic for AI)
 export const summarizeText = (content) => {
   const apiBase = import.meta.env.PROD 
-      ? "/.netlify/functions/summarize" 
-      : "http://localhost:5000/api/notes/summarize-text"; // Dev fallback
+      ? "/api/summarize"  // Vercel Function Path
+      : "http://localhost:5000/api/notes/summarize-text"; // Keep dev fallback or point to same if using vercel dev
 
   return axios.post(apiBase, { content });
 };
