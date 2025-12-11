@@ -172,7 +172,7 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, onBack, dark
                 onBlur={handleSave}
                 onKeyDown={(e) => e.key === 'Enter' && handleSave()}
                 placeholder="Untitled Note"
-                className="w-full text-5xl font-extrabold font-display bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-slate-800 tracking-tight leading-tight"
+                className="w-full text-3xl md:text-5xl font-extrabold font-display bg-transparent border-none outline-none text-slate-900 dark:text-white placeholder-slate-200 dark:placeholder-slate-800 tracking-tight leading-tight"
               />
               </div>
 
@@ -206,7 +206,7 @@ const Editor = ({ selectedNote, onSave, onDelete, onSummaryUpdated, onBack, dark
                 value={content}
                 onChange={(e) => { setContent(e.target.value); setIsSaved(false); }}
                 onBlur={handleSave} 
-                placeholder="Type / for commands..."
+                placeholder="Add note content"
                 className="w-full min-h-[60vh] bg-transparent resize-none focus:outline-none text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-sans"
               ></textarea>
           
