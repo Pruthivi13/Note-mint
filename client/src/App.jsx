@@ -9,6 +9,7 @@ function App() {
   const [selectedTag, setSelectedTag] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(null);
 
   // Initial Load
   useEffect(() => {
@@ -21,7 +22,10 @@ function App() {
         console.log("Loaded notes:", normalized);
         setNotes(normalized);
       })
-      .catch((err) => console.error("Failed to load notes", err))
+      .catch((err) => {
+          console.error("Failed to load notes", err);
+          setError(`Failed to load notes: ${err.message}`);
+      })
       .finally(() => setIsLoaded(true));
     
     // Check local storage or preference for Dark Mode
@@ -106,9 +110,10 @@ function App() {
          );
          setNotes(updatedNotes);
          setSelectedNote(finalNote);
-       } catch (err) {
-         console.error("Failed to create note", err);
-       }
+        } catch (err) {
+          console.error("Failed to create note", err);
+          setError(`Failed to create note: ${err.message}`);
+        }
 
     } else {
       // Update existing
@@ -122,6 +127,7 @@ function App() {
         setSelectedNote(updatedLocal);
       } catch (err) {
         console.error("Failed to update note", err);
+        setError(`Failed to update note: ${err.message}`);
       }
     }
   };
@@ -191,6 +197,12 @@ function App() {
       />
       
       <main className="flex-1 h-full flex flex-col relative overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+        {error && (
+            <div className="bg-red-500 text-white px-4 py-2 text-sm font-bold flex justify-between items-center">
+                <span>{error}</span>
+                <button onClick={() => setError(null)} className="ml-4 hover:bg-red-600 rounded px-2">X</button>
+            </div>
+        )}
         <Editor 
           selectedNote={selectedNote} 
           onSave={handleSaveNote}
