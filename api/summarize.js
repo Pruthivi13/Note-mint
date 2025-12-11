@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
+    const model = genAI.getGenerativeModel({ model: "gemini-pro-latest" });
 
     const prompt = `Summarize the following text in 4-6 lines, capturing the main points clearly:\n\n${content}`;
     
