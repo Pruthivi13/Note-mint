@@ -16,7 +16,7 @@ const getNotes = async (req, res) => {
     }
     res.status(200).json(notes);
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ message: "Failed to fetch notes", error: err.message });
   }
 };
 
@@ -30,7 +30,7 @@ const createNote = async (req, res) => {
     res.status(200).json(savedNote);
   } catch (err) {
     logDebug("CREATE ERROR: " + err);
-    res.status(500).json(err);
+    res.status(500).json({ message: "Failed to create note", error: err.message });
   }
 };
 
@@ -59,7 +59,7 @@ const updateNote = async (req, res) => {
     res.status(200).json(updatedNote);
   } catch (err) {
     logDebug("UPDATE ERROR: " + err);
-    res.status(500).json(err);
+    res.status(500).json({ message: "Update Failed", error: err.message });
   }
 };
 
@@ -69,7 +69,7 @@ const deleteNote = async (req, res) => {
     await Note.findByIdAndDelete(req.params.id);
     res.status(200).json("Note has been deleted...");
   } catch (err) {
-    res.status(500).json(err);
+    res.status(500).json({ message: "Failed to delete note", error: err.message });
   }
 };
 

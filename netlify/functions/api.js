@@ -8,6 +8,10 @@ let conn = null;
 
 const connectDB = async () => {
   if (conn == null) {
+    if (!process.env.MONGODB_URI) {
+        throw new Error("MONGODB_URI is variable is not defined in Netlify Environment.");
+    }
+
     console.log("Creating new MongoDB connection...");
     conn = await mongoose.connect(process.env.MONGODB_URI, {
       serverSelectionTimeoutMS: 5000
@@ -26,7 +30,10 @@ module.exports.handler = async (event, context) => {
     await connectDB();
   } catch (error) {
     console.error("Database Connection Error:", error);
-    // Continue processing, let the app handle the DB failure if it tries to access it
+    return {
+        statusCode: 500,
+        body: JSON.stringify({ message: "Database Connection Error", error: error.message })
+    };
   }
 
   // Delegate to the express app wrapped by serverless-http
