@@ -1,12 +1,22 @@
-    // Dynamic import to prevent top-level crashes if dependency is missing
-    let GoogleGenerativeAI;
-    try {
-        GoogleGenerativeAI = require("@google/generative-ai").GoogleGenerativeAI;
-    } catch (e) {
-        console.error("Dependency Error:", e);
-        return res.status(200).json({ summary: "❌ Server Error: Missing '@google/generative-ai' dependency. Check package.json." });
-    }
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+module.exports = async (req, res) => {
+  // CORS Config
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+
+  // Handle Preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // Only allow POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: "Method Not Allowed" });
+  }
+
+  try {
     const { content } = req.body;
 
     if (!content) {
