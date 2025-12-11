@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const prompt = `Summarize the following text in 4-6 lines, capturing the main points clearly:\n\n${content}`;
     
@@ -43,11 +43,12 @@ module.exports = async (req, res) => {
     return res.status(200).json({ summary: text.trim() });
 
   } catch (error) {
-    console.warn("AI Service Error (Rate Limit/Quota):", error.message);
+    console.error("AI Service Error:", error.message);
     
     // Fallback: Simple extraction summary
-    const sentences = content.match(/[^\.!\?]+[\.!\?]+/g) || [content];
-    const fallbackSummary = sentences.slice(0, 3).join(' ') + " (Running offline due to high traffic)";
+    const safeContent = typeof content === 'string' ? content : String(content || '');
+    const sentences = safeContent.match(/[^\.!\?]+[\.!\?]+/g) || [safeContent];
+    const fallbackSummary = sentences.slice(0, 3).join(' ') + " (Running offline due to heavy traffic)";
     
     return res.status(200).json({ 
         summary: fallbackSummary,
