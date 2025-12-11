@@ -1,4 +1,4 @@
-import { StarIcon } from '@heroicons/react/24/solid';
+import { StarIcon, SunIcon, MoonIcon } from '@heroicons/react/24/solid';
 import { PlusIcon } from '@heroicons/react/24/outline';
 
 const NotesList = ({ notes, selectedNote, onSelectNote, onNewNote, darkMode, toggleDarkMode, tags, selectedTag, onSelectTag }) => {
