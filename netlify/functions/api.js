@@ -32,7 +32,7 @@ module.exports.handler = async (event, context) => {
     console.error("Database Connection Error:", error);
     return {
         statusCode: 500,
-        body: JSON.stringify({ message: "Database Connection Error", error: error.message })
+        body: JSON.stringify({ message: "DB Error: " + error.message })
     };
   }
 
