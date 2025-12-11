@@ -21,8 +21,31 @@ async function test() {
       const data = await response.json();
       
       if (data.models) {
-          console.log("\nAVAILABLE MODELS:");
-          data.models.forEach(m => console.log(`- ${m.name} (${m.version})`));
+          console.log("\n--- STABLE MODELS CHECK ---");
+          const allNames = data.models.map(m => m.name);
+          
+          const targets = [
+              "models/gemini-1.5-flash", 
+              "models/gemini-1.5-flash-001",
+              "models/gemini-1.5-pro",
+              "models/gemini-1.5-pro-001",
+              "models/gemini-pro",
+              "models/gemini-1.0-pro"
+          ];
+          
+          targets.forEach(t => {
+              const found = allNames.find(n => n === t || n.endsWith("/" + t) || n === t.replace("models/", ""));
+              if (found) console.log(`[AVAILABLE] ${t} -> ${found}`);
+              else console.log(`[MISSING]   ${t}`);
+          });
+          
+          console.log("\n--- OTHER NOTABLE MODELS ---");
+           data.models.forEach(m => {
+               if (m.name.includes("latest") || m.name.includes("flash")) {
+                   console.log(m.name);
+               }
+           });
+
       } else {
           console.log("No 'models' property in response:", data);
       }
