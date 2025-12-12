@@ -26,14 +26,35 @@ exports.handler = async (event, context) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const models = ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-2.0-flash-exp"];
+    let text = "";
+    let lastError = null;
 
-    const prompt = `Summarize the following text in 4-6 lines, capturing the main points clearly:\n\n${content}`;
-    
-    // Call Gemini API
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    for (const modelName of models) {
+        try {
+            console.log(`[Netlify] Trying model: ${modelName}`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const prompt = `Summarize the following text in 4-6 lines, capturing the main points clearly:\n\n${content}`;
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            text = response.text();
+            break;
+        } catch (e) {
+            console.warn(`[Netlify] ${modelName} failed: ${e.message}`);
+            lastError = e;
+        }
+    }
+
+    if (!text) {
+         const errString = lastError ? lastError.toString() : "";
+         if (errString.includes("429") || errString.includes("Quota")) {
+             return {
+                statusCode: 200,
+                body: JSON.stringify({ summary: "⏳ AI Usage Limit Reached. Please wait a few seconds and try again." })
+             };
+         }
+         throw lastError || new Error("All AI models failed.");
+    }
 
     return {
       statusCode: 200,

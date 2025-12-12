@@ -10,14 +10,38 @@ const generateSummary = async (content) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    // Use Experimental model for better free tier quota
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+    
+    // List of models to try in order of preference (Stable 2.0 first)
+    const models = ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-2.0-flash-exp"];
+    
+    let text = null;
+    let lastError = null;
 
-    const prompt = `Summarize the following text in 4-6 lines, capturing the main points clearly:\n\n${content}`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    for (const modelName of models) {
+        try {
+            console.log(`Trying model: ${modelName}`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const prompt = `Summarize the following text in 4-6 lines, capturing the main points clearly:\n\n${content}`;
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            text = response.text();
+            
+            if (text) break; // Success!
+        } catch (e) {
+            console.warn(`Model ${modelName} failed: ${e.message}`);
+            lastError = e;
+            // specific check: if it's a 404, valid to try next. If it's a 429, we might want to try next too (different bucket?) 
+            // but generally 429 is global. We'll keep trying just in case.
+        }
+    }
+    
+    if (!text) {
+        const errString = lastError ? lastError.toString() : "Unknown Error";
+        if (errString.includes("429") || errString.includes("Quota") || errString.includes("resource_exhausted")) {
+            return "⏳ AI Usage Limit Reached. Please wait a few seconds and try again.";
+        }
+        return "⚠️ Failed to generate summary. Please check server logs.";
+    }
     
     return text.trim();
   } catch (error) {
